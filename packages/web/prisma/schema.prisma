@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Pilot {
+  pilotid      Int    @id @default(autoincrement())
+  code         String @default("") @db.Char(3)
+  firstname    String @default("") @db.VarChar(25)
+  lastname     String @default("") @db.VarChar(25)
+  totalflights Int    @default(0)
+  totalhours   Float  @default(0) @db.Float
+  hub          String @default("") @db.VarChar(4)
+  retired      Int    @default(0) @db.SmallInt
+  rankid       Int    @default(0)
+
+  acarsData   AcarsData[]
+  fieldValues FieldValue[]
+  rank        Rank         @relation(fields: [rankid], references: [rankid])
+
+  @@map("pilots")
+}
+
+model Pirep {
+  pirepid    Int      @id @default(autoincrement())
+  distance   Int      @default(0) @db.SmallInt
+  submitdate DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  accepted   Int      @default(0) @db.SmallInt
+
+  @@map("pireps")
+}
+
+model Schedule {
+  id   Int    @id @default(autoincrement())
+  code String @default("") @db.Char(3)
+
+  @@map("schedules")
+}
+
+model AcarsData {
+  id            Int      @id @default(autoincrement())
+  pilotid       Int?
+  flightnum     String   @default("0") @db.VarChar(11)
+  pilotname     String   @default("") @db.VarChar(100)
+  aircraft      String   @db.VarChar(30)
+  lat           String   @default("") @db.VarChar(15)
+  lng           String   @default("") @db.VarChar(15)
+  heading       Int      @default(0) @db.SmallInt
+  alt           String   @default("") @db.VarChar(6)
+  gs            Int      @default(0)
+  depicao       String?  @default("") @db.VarChar(5)
+  depapt        String   @default("") @db.VarChar(255)
+  arricao       String   @default("") @db.VarChar(5)
+  arrapt        String   @db.Text
+  deptime       DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+  timeremaining String   @default("") @db.VarChar(6)
+  arrtime       DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+  route         String   @db.Text
+  route_details String   @db.Text
+  distremain    String   @default("") @db.VarChar(6)
+  phasedetail   String   @default("") @db.VarChar(255)
+  online        String   @default("") @db.VarChar(10)
+  messagelog    String   @db.Text
+  lastupdate    DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  client        String   @default("") @db.VarChar(20)
+
+  pilot      Pilot?    @relation(fields: [pilotid], references: [pilotid])
+  aircraf    Aircraft? @relation(fields: [aircraft], references: [registration])
+  depAirport Airport?  @relation("DepAirport", fields: [depicao], references: [icao])
+  arrAirport Airport?  @relation("ArrAirport", fields: [arricao], references: [icao])
+
+  @@index([pilotid], name: "pilotid")
+  @@map("acarsdata")
+}
+
+model Aircraft {
+  id           Int    @id @default(autoincrement())
+  registration String @db.VarChar(30)
+
+  acarsData AcarsData[]
+
+  @@map("aircraft")
+}
+
+model Airport {
+  id   Int    @id @default(autoincrement())
+  name String @db.Text
+  icao String @unique @default("") @db.VarChar(5)
+  lat  Float  @default(0) @db.Float
+  lng  Float  @default(0) @db.Float
+
+  arrAcarsData AcarsData[] @relation("ArrAirport")
+  depAcarsData AcarsData[] @relation("DepAirport")
+
+  @@map("airports")
+}
+
+model CustomField {
+  fieldid        Int    @id @default(autoincrement())
+  title          String @db.VarChar(75)
+  fieldname      String @unique @db.VarChar(75)
+  value          String @db.Text
+  type           String @default("text") @db.VarChar(25)
+  public         Int    @default(0) @db.SmallInt
+  showonregister Int    @default(0) @db.SmallInt
+  required       Int    @default(0) @db.SmallInt
+
+  fieldvalues FieldValue[]
+
+  @@map("customfields")
+}
+
+model FieldValue {
+  id      Int    @id @default(autoincrement())
+  fieldid Int
+  pilotid Int
+  value   String @db.Text
+
+  customfields CustomField @relation(fields: [fieldid], references: [fieldid])
+  pilots       Pilot       @relation(fields: [pilotid], references: [pilotid])
+
+  @@index([fieldid], name: "fieldvalues_ibfk_1")
+  @@index([pilotid], name: "fieldvalues_ibfk_2")
+  @@map("fieldvalues")
+}
+
+model Rank {
+  rankid    Int     @id @default(autoincrement())
+  rank      String  @unique @default("") @db.VarChar(32)
+  rankimage String  @db.Text
+  minhours  Int     @default(0) @db.SmallInt
+  payrate   Float   @default(0) @db.Float
+  invite    Boolean @default(false)
+
+  pilots Pilot[]
+
+  @@map("ranks")
+}

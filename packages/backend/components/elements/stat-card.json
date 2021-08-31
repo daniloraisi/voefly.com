@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_elements_stat_cards",
+  "info": {
+    "name": "StatCard",
+    "icon": "chart-bar",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "displayField": {
+      "type": "string"
+    }
+  }
+}

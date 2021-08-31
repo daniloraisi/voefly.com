@@ -1,0 +1,16 @@
+{
+  "name": "fly-site",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "heroku-postbuild": "yarn workspace backend build",
+    "dev:backend": "yarn workspace backend dev",
+    "dev:web": "yarn workspace web dev",
+    "dev": "yarn dev:backend & yarn dev:web &"
+  },
+  "engines": {
+    "node": "14.x"
+  }
+}

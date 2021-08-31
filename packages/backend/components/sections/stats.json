@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_sections_stats",
+  "info": {
+    "name": "Stats",
+    "icon": "chart-line",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subTitle": {
+      "type": "string"
+    },
+    "stats": {
+      "type": "component",
+      "repeatable": true,
+      "component": "elements.stat-card"
+    },
+    "apiUrl": {
+      "type": "string"
+    }
+  }
+}

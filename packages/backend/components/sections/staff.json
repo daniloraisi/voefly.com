@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_sections_staff",
+  "info": {
+    "name": "Staff",
+    "icon": "people-carry"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "staff": {
+      "type": "component",
+      "repeatable": true,
+      "component": "elements.staff"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_sections_pilots",
+  "info": {
+    "name": "Pilots",
+    "icon": "user-alt"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,821 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Pilot {
+  pilotid       Int            @id @default(autoincrement())
+  firstname     String         @default("") @db.VarChar(25)
+  lastname      String         @default("") @db.VarChar(25)
+  email         String         @default("") @db.VarChar(100)
+  code          String         @default("") @db.Char(3)
+  location      String         @default("") @db.VarChar(32)
+  hub           String         @default("") @db.VarChar(4)
+  password      String         @default("") @db.VarChar(32)
+  salt          String         @default("") @db.VarChar(32)
+  bgimage       String         @default("") @db.VarChar(30)
+  lastlogin     DateTime?      @db.Date
+  totalflights  Int            @default(0)
+  totalhours    Float          @default(0) @db.Float
+  totalpay      Float          @default(0) @db.Float
+  payadjust     Float?         @default(0) @db.Float
+  transferhours Float          @default(0) @db.Float
+  rankid        Int            @default(0)
+  rank          String         @default("New Hire") @db.VarChar(32)
+  ranklevel     Int            @default(0)
+  confirmed     Int            @default(0) @db.UnsignedSmallInt
+  retired       Int            @default(0) @db.SmallInt
+  joindate      DateTime       @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  lastpirep     DateTime?      @db.DateTime(0)
+  lastip        String?        @default("") @db.VarChar(25)
+  comment       String?        @db.Text
+  valdate       DateTime?      @db.Date
+  valid         Int?           @default(1)
+  valcode       String?        @default("") @db.VarChar(300)
+  airlines      airlines       @relation("airlinesTopilots", fields: [code], references: [code])
+  fieldvalues   fieldvalues[]  @relation("fieldvaluesTopilots")
+  groupmembers  groupmembers[] @relation("groupmembersTopilots")
+
+  @@index([code], name: "code")
+  @@index([rank], name: "rank")
+  @@map("pilots")
+}
+
+model Pirep {
+  pirepid          Int             @id @default(autoincrement())
+  pilotid          Int             @default(0)
+  code             String          @default("") @db.Char(3)
+  flightnum        String          @default("0") @db.VarChar(10)
+  depicao          String          @default("") @db.VarChar(4)
+  arricao          String          @default("") @db.VarChar(4)
+  route            String          @db.Text
+  route_details    String          @db.Text
+  aircraft         String          @default("") @db.VarChar(12)
+  flighttime       String          @default("") @db.VarChar(10)
+  flighttime_stamp DateTime        @db.Time(0)
+  distance         Int             @default(0) @db.SmallInt
+  landingrate      Float           @default(0) @db.Float
+  submitdate       DateTime        @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  modifieddate     DateTime        @db.DateTime(0)
+  accepted         Int             @default(0) @db.SmallInt
+  log              String          @db.Text
+  load             Int
+  fuelused         Float           @default(0) @db.Float
+  fuelunitcost     Float           @default(0) @db.Float
+  fuelprice        Float           @default(5.1) @db.Float
+  price            Float           @db.Float
+  flighttype       String          @default("P") @db.VarChar(1)
+  gross            Float           @default(0) @db.Float
+  pilotpay         Float           @db.Float
+  paytype          Boolean         @default(true)
+  expenses         Float           @db.Float
+  expenselist      Bytes           @db.Blob
+  revenue          Float           @db.Float
+  source           String          @db.VarChar(25)
+  exported         Int             @db.TinyInt
+  rawdata          String          @db.Text
+  pirepcomments    pirepcomments[] @relation("pirepcommentsTopireps")
+
+  @@map("pireps")
+}
+
+model Schedule {
+  id            Int      @id @default(autoincrement())
+  code          String   @default("") @db.Char(3)
+  flightnum     String   @default("0") @db.VarChar(10)
+  depicao       String   @default("") @db.VarChar(4)
+  arricao       String   @default("") @db.VarChar(4)
+  route         String   @db.Text
+  route_details String   @db.Text
+  aircraft      String   @db.Text
+  flightlevel   String   @db.VarChar(6)
+  distance      Float    @default(0) @db.Float
+  deptime       String   @default("") @db.VarChar(15)
+  arrtime       String   @default("") @db.VarChar(15)
+  flighttime    Float    @default(0) @db.Float
+  daysofweek    String   @default("0123456") @db.VarChar(7)
+  week1         String   @default("0123456") @db.VarChar(7)
+  week2         String   @default("0123456") @db.VarChar(7)
+  week3         String   @default("0123456") @db.VarChar(7)
+  week4         String   @default("0123456") @db.VarChar(7)
+  price         Float    @db.Float
+  payforflight  Float    @default(0) @db.Float
+  flighttype    String   @default("P") @db.VarChar(1)
+  timesflown    Int      @default(0)
+  notes         String   @db.Text
+  enabled       Int      @default(1)
+  bidid         Int      @default(0)
+  airlines      airlines @relation("airlinesToschedules", fields: [code], references: [code])
+
+  @@index([code], name: "code")
+  @@index([depicao], name: "depicao")
+  @@index([depicao, arricao], name: "depicao_arricao")
+  @@index([flightnum], name: "flightnum")
+  @@index([code, flightnum], name: "idx_code_flightnum")
+  @@map("schedules")
+}
+
+model acarsdata {
+  id            Int      @id @default(autoincrement())
+  pilotid       String   @default("0") @db.VarChar(11)
+  flightnum     String   @default("0") @db.VarChar(11)
+  pilotname     String   @default("") @db.VarChar(100)
+  aircraft      String   @default("") @db.VarChar(12)
+  lat           String   @default("") @db.VarChar(15)
+  lng           String   @default("") @db.VarChar(15)
+  heading       Int      @default(0) @db.SmallInt
+  alt           String   @default("") @db.VarChar(6)
+  gs            Int      @default(0)
+  depicao       String   @default("") @db.VarChar(4)
+  depapt        String   @default("") @db.VarChar(255)
+  arricao       String   @default("") @db.VarChar(4)
+  arrapt        String   @db.Text
+  deptime       DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+  timeremaining String   @default("") @db.VarChar(6)
+  arrtime       DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+  route         String   @db.Text
+  route_details String   @db.Text
+  distremain    String   @default("") @db.VarChar(6)
+  phasedetail   String   @default("") @db.VarChar(255)
+  online        String   @default("") @db.VarChar(10)
+  messagelog    String   @db.Text
+  lastupdate    DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  client        String   @default("") @db.VarChar(20)
+
+  @@index([pilotid], name: "pilotid")
+}
+
+model aircraft {
+  id           Int    @id @default(autoincrement())
+  icao         String @default("") @db.VarChar(4)
+  airline      String @db.VarChar(255)
+  location     String @db.VarChar(255)
+  name         String @default("") @db.VarChar(12)
+  fullname     String @default("") @db.VarChar(50)
+  registration String @db.VarChar(30)
+  downloadlink String @db.Text
+  imagelink    String @db.Text
+  range        String @default("0") @db.VarChar(15)
+  weight       String @default("0") @db.VarChar(15)
+  cruise       String @default("0") @db.VarChar(15)
+  maxpax       Float  @default(0) @db.Float
+  maxcargo     Float  @default(0) @db.Float
+  minrank      Int    @default(0)
+  ranklevel    Int    @default(0)
+  enabled      Int    @default(1) @db.SmallInt
+}
+
+model airports {
+  id        Int    @id @default(autoincrement())
+  icao      String @unique @default("") @db.VarChar(5)
+  name      String @db.Text
+  country   String @default("") @db.VarChar(50)
+  lat       Float  @default(0) @db.Float
+  lng       Float  @default(0) @db.Float
+  hub       Int    @default(0) @db.SmallInt
+  fuelprice Float  @default(0) @db.Float
+  chartlink String @db.Text
+}
+
+model academy_aircraft {
+  id         Int @id @default(autoincrement())
+  aircraftid Int
+}
+
+model academy_classes {
+  id              Int      @id @default(autoincrement())
+  tratype         String   @db.VarChar(100)
+  traname         String   @db.VarChar(200)
+  description     String   @db.VarChar(2000)
+  difficultylevel String   @db.VarChar(30)
+  requirements    String   @db.VarChar(2000)
+  ranklevel       String   @db.VarChar(50)
+  goals           String   @db.VarChar(2000)
+  imageurl        String   @db.VarChar(2000)
+  certificateurl  String   @db.VarChar(2000)
+  startdate       DateTime @db.Date
+  starttime       String   @default("") @db.VarChar(20)
+  platforms       String   @default("") @db.VarChar(200)
+  instructor      String   @db.VarChar(200)
+  aircrafttype    String   @db.VarChar(200)
+  theoryexamreq   Int
+  practexamreq    Int
+  status          String   @default("1") @db.VarChar(200)
+}
+
+model academy_exam_settings {
+  id             Int    @id @default(autoincrement())
+  welcometext    String @default("Welcome to CrewTest") @db.VarChar(2000)
+  examimage      String @db.VarChar(200)
+  examstatus     String @default("2") @db.VarChar(100)
+  questioncount  Int    @default(25)
+  questiontime   Int    @default(300)
+  passpercentage Int    @default(75)
+  daysfailed     Int    @default(14)
+  totalpassed    Int
+  totalfailed    Int
+  classid        Int
+  examtitle      String @db.VarChar(50)
+}
+
+model academy_exams {
+  id              Int      @id @default(autoincrement())
+  firstname       String   @db.VarChar(100)
+  lastname        String   @db.VarChar(100)
+  email           String   @db.VarChar(100)
+  startdate       DateTime @db.Date
+  currentquestion Int      @default(1)
+  correctq        Int      @default(0)
+  wrongq          Int      @default(0)
+  result          Int
+  passfail        String   @db.VarChar(30)
+  gradedate       DateTime @db.Date
+  finished        Int      @default(0)
+  pilotid         Int
+  traid           Int
+  assigned        Int      @default(0)
+  exsid           Int
+}
+
+model academy_flights {
+  id         Int      @id @default(autoincrement())
+  pilotid    Int
+  trainingid Int
+  isexam     Int      @default(0)
+  assignedby Int
+  flightid   String   @db.VarChar(100)
+  adddate    DateTime @default(now()) @db.Timestamp(0)
+}
+
+model academy_lessons {
+  id        Int      @id @default(autoincrement())
+  classid   Int
+  lessonnum Int
+  lestitle  String   @db.VarChar(50)
+  lestext   String   @db.Text
+  adddate   DateTime @default(now()) @db.Timestamp(0)
+  addedby   String   @db.VarChar(100)
+  status    Int
+}
+
+model academy_materials {
+  id             Int      @id @default(autoincrement())
+  mattitle       String   @db.VarChar(200)
+  matdescription String   @db.VarChar(2000)
+  downloadurl    String   @db.VarChar(2000)
+  belongsto      Int
+  revision       Int
+  lastupdate     DateTime @db.DateTime(0)
+  submitdate     DateTime @default(now()) @db.Timestamp(0)
+  status         String   @default("1") @db.VarChar(100)
+  addedby        String   @db.VarChar(30)
+}
+
+model academy_mentors {
+  id             Int      @id @default(autoincrement())
+  pilotid        Int
+  addmentors     Int      @default(1)
+  changesettings Int      @default(1)
+  addcourses     Int      @default(0)
+  addmaterials   Int      @default(0)
+  addflights     Int      @default(0)
+  texaminer      Int      @default(0)
+  pexaminer      Int      @default(0)
+  dateadded      DateTime @db.Date
+  status         String   @default("1") @db.VarChar(100)
+}
+
+model academy_notes {
+  id         Int      @id @default(autoincrement())
+  trainingid Int
+  comment    String   @db.Text
+  addedby    String   @db.VarChar(100)
+  submitdate DateTime @default(now()) @db.Timestamp(0)
+  noteread   Int      @default(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model academy_prexams {
+  id       Int      @default(autoincrement())
+  trainid  Int
+  examiner Int
+  exdate   DateTime @db.Date
+  extime   DateTime @db.Time(0)
+  critique String   @db.Text
+  result   String   @db.VarChar(100)
+
+  @@index([id], name: "id")
+  @@ignore
+}
+
+model academy_questions {
+  id            Int    @id @default(autoincrement())
+  tquestion     String @db.VarChar(500)
+  answerone     String @db.VarChar(500)
+  answertwo     String @db.VarChar(500)
+  answerthree   String @db.VarChar(500)
+  answerfour    String @db.VarChar(500)
+  goodanswer    String @db.VarChar(100)
+  questionimage String @db.VarChar(500)
+  enabled       Int    @default(1)
+  examid        Int
+}
+
+model academy_questions_active {
+  qnum          Int    @id @default(autoincrement())
+  qid           Int
+  exid          Int
+  finished      Int    @default(0)
+  correctanswer String @db.VarChar(50)
+  givenanswer   String @db.VarChar(50)
+}
+
+model academy_settings {
+  id          Int    @id @default(autoincrement())
+  academyname String @default("Flight Academy") @db.VarChar(200)
+  logourl     String @db.VarChar(2000)
+  welcometext String @default("Welcome to our Flight Academy") @db.VarChar(5000)
+  status      Int    @default(1)
+  airlinecode String @default("FLT") @db.VarChar(5)
+}
+
+model academy_trainings {
+  id              Int      @id @default(autoincrement())
+  studentid       Int
+  mentorid        Int
+  classid         Int
+  progress        String   @db.VarChar(100)
+  theoexampassed  Int      @default(0)
+  practexampassed Int      @default(0)
+  welcomemail     Int      @default(0)
+  completed       Int      @default(0)
+  startdate       DateTime @db.Date
+  critiqueadded   Int      @default(0)
+  pexamid         Int
+  texamid         Int
+  status          String   @default("Active") @db.VarChar(100)
+  exblocked       Int
+}
+
+model activityfeed {
+  id         Int      @id @default(autoincrement())
+  pilotid    Int      @default(0)
+  refid      BigInt   @default(0)
+  type       Int      @default(0) @db.TinyInt
+  message    String   @db.VarChar(100)
+  submitdate DateTime @db.DateTime(0)
+
+  @@index([pilotid], name: "pilotid")
+}
+
+model adminlog {
+  id        Int      @id @default(autoincrement())
+  pilotid   Int
+  datestamp DateTime @db.DateTime(0)
+  message   String   @db.VarChar(255)
+}
+
+model airlines {
+  id        Int        @id @default(autoincrement())
+  code      String     @unique @default("") @db.Char(3)
+  name      String     @default("") @db.VarChar(30)
+  enabled   Int        @default(1) @db.SmallInt
+  pilots    Pilot[]    @relation("airlinesTopilots")
+  schedules Schedule[] @relation("airlinesToschedules")
+}
+
+model airmail {
+  id              Int      @id @default(autoincrement()) @db.UnsignedInt
+  who_to          String   @db.VarChar(20)
+  who_from        String   @db.VarChar(20)
+  date            DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  read_state      Int      @default(0) @db.UnsignedSmallInt
+  deleted_state   Int      @default(0) @db.SmallInt
+  sent_state      Int      @default(0) @db.SmallInt
+  subject         String   @default("") @db.VarChar(50)
+  message         String   @db.Text
+  notam           Int      @default(0) @db.SmallInt
+  sender_folder   Int?     @default(0)
+  receiver_folder Int?     @default(0)
+  thread_id       Int      @default(0)
+
+  @@index([subject], name: "subject")
+}
+
+model airmail_email {
+  id       Int @id @default(autoincrement())
+  pilot_id Int
+  email    Int @default(0)
+}
+
+model airmail_folders {
+  id           Int    @id @default(autoincrement())
+  pilot_id     Int
+  folder_title String @db.VarChar(50)
+}
+
+model autopirep {
+  id                      Int    @id @default(autoincrement())
+  criteria_description    String @db.Text
+  created_by              Int
+  enabled                 Int    @default(1) @db.SmallInt
+  criteria_variable       String @db.Text
+  criteria_custom_message String @db.Text
+}
+
+model autopirep_settings {
+  setting_id        Int    @id @default(autoincrement())
+  enabled           String @db.VarChar(1)
+  landing_rate      String @db.Text
+  sendmail_to_admin Int    @default(1) @db.SmallInt
+  sendmail_to_pilot Int    @db.TinyInt
+  admin_rejecting   String @db.Text
+}
+
+model awards {
+  awardid Int    @id @default(autoincrement())
+  name    String @db.VarChar(25)
+  descrip String @db.VarChar(100)
+  image   String @db.Text
+}
+
+model awardsgranted {
+  id         Int      @id @default(autoincrement())
+  awardid    Int
+  pilotid    Int
+  dateissued DateTime @db.DateTime(0)
+}
+
+model bids {
+  bidid      Int      @id @default(autoincrement())
+  pilotid    Int      @default(0)
+  routeid    Int      @default(0)
+  aircraftid Int
+  dateadded  DateTime @db.Date
+}
+
+model customfields {
+  fieldid        Int           @id @default(autoincrement())
+  title          String        @db.VarChar(75)
+  fieldname      String        @unique @db.VarChar(75)
+  value          String        @db.Text
+  type           String        @default("text") @db.VarChar(25)
+  public         Int           @default(0) @db.SmallInt
+  showonregister Int           @default(0) @db.SmallInt
+  required       Int           @default(0) @db.SmallInt
+  fieldvalues    fieldvalues[]
+}
+
+model downloads {
+  id          Int     @id @default(autoincrement())
+  pid         Int?
+  name        String? @db.VarChar(50)
+  description String? @db.Text
+  link        String? @db.Text
+  image       String? @db.Text
+  hits        Int?
+}
+
+model events {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(dbgenerated("0000-00-00")) @db.Date
+  time          DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+  title         String   @db.VarChar(50)
+  description   String   @db.VarChar(2000)
+  image         String   @db.VarChar(100)
+  dep           String   @db.VarChar(4)
+  arr           String   @db.VarChar(4)
+  schedule      String   @db.VarChar(5)
+  slot_limit    Int      @default(0)
+  slot_interval Int
+  active        Int      @default(1)
+}
+
+model events_pilotranks {
+  id       Int @id @default(autoincrement())
+  pilot_id Int
+  ranking  Int
+}
+
+model events_signups {
+  id       Int      @id @default(autoincrement())
+  event_id Int
+  pilot_id Int
+  time     DateTime @default(dbgenerated("00:00:00")) @db.Time(0)
+}
+
+model exams {
+  id               Int    @id @default(autoincrement())
+  exam_description String @db.Text
+  passing          Int    @default(100)
+  cost             Int    @default(0)
+  active           Int    @default(0)
+  version          Int    @default(1)
+  created_date     String @db.VarChar(25)
+  last_changed     String @db.VarChar(25)
+  created_by       Int
+}
+
+model exams_admin {
+  id          Int @id @default(autoincrement())
+  pilot_id    Int
+  admin_level Int
+}
+
+model exams_available {
+  id       Int @id @default(autoincrement())
+  exam_id  Int
+  pilot_id Int
+}
+
+model exams_exam_revisions {
+  id           Int    @id @default(autoincrement())
+  exam_id      Int
+  revised_by   Int
+  revision     Int
+  date_revised String @db.VarChar(25)
+}
+
+model exams_questions {
+  id             Int    @id @default(autoincrement())
+  exam_id        Int
+  question       String @db.Text
+  answer_1       String @db.Text
+  answer_2       String @db.Text
+  answer_3       String @db.Text
+  answer_4       String @db.Text
+  correct_answer Int
+  active         Int    @default(0)
+}
+
+model exams_questions_revisions {
+  id           Int    @id @default(autoincrement())
+  question_id  Int
+  revised_by   Int
+  revision     Int
+  date_revised String @db.VarChar(25)
+}
+
+model exams_requests {
+  id       Int @id @default(autoincrement())
+  pilot_id Int
+  exam_id  Int
+}
+
+model exams_results {
+  id           Int      @id @default(autoincrement())
+  pilot_id     Int
+  exam_id      Int
+  exam_title   String   @db.Text
+  exam_version Int
+  result       Int
+  passfail     Int      @default(0)
+  date         DateTime @default(dbgenerated("0000-00-00")) @db.Date
+  approved     Int      @default(0)
+}
+
+model exams_results_history {
+  id           Int    @id @default(autoincrement())
+  result_id    Int
+  question     String @db.VarChar(250)
+  answer_1     String @db.VarChar(250)
+  answer_2     String @db.VarChar(250)
+  answer_3     String @db.VarChar(250)
+  answer_4     String @db.VarChar(250)
+  pilot_answer Int
+  cor_answer   Int
+}
+
+model exams_revisions_types {
+  id           Int    @id @default(autoincrement())
+  revision     String @db.VarChar(250)
+  deleted      Int    @default(0)
+  editable     Int    @default(0)
+  date_created String @db.VarChar(25)
+  created_by   Int
+  active       Int    @default(1)
+}
+
+model exams_settings {
+  id           Int    @id @default(autoincrement())
+  setting      String @db.VarChar(50)
+  value        String @db.VarChar(150)
+  setting_type Int
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model expenselog {
+  dateadded Int
+  name      String @db.VarChar(25)
+  type      String @db.VarChar(2)
+  cost      Float  @db.Float
+
+  @@index([dateadded], name: "dateadded")
+  @@ignore
+}
+
+model expenses {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(25)
+  cost  Float  @db.Float
+  fixed Int    @default(0)
+  type  String @default("M") @db.VarChar(1)
+}
+
+model fieldvalues {
+  id           Int          @id @default(autoincrement())
+  fieldid      Int
+  pilotid      Int
+  value        String       @db.Text
+  customfields customfields @relation(fields: [fieldid], references: [fieldid])
+  pilots       Pilot        @relation("fieldvaluesTopilots", fields: [pilotid], references: [pilotid])
+
+  @@index([fieldid], name: "fieldvalues_ibfk_1")
+  @@index([pilotid], name: "fieldvalues_ibfk_2")
+}
+
+model financedata {
+  id    Int    @id @default(autoincrement())
+  month Int
+  year  Int
+  data  String @db.Text
+  total Float  @db.Float
+}
+
+model fltbook_location {
+  id                 Int      @id @default(autoincrement())
+  pilot_id           Int
+  arricao            String   @db.VarChar(4)
+  jumpseats          Int      @default(0)
+  total_jumpseat_pay Float    @default(0) @db.Float
+  last_update        DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+}
+
+model fltbook_settings {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(255)
+  value Float  @default(0) @db.Float
+}
+
+model fuelprices {
+  id          Int      @id @default(autoincrement())
+  icao        String   @db.VarChar(4)
+  lowlead     Float    @db.Float
+  jeta        Float    @db.Float
+  dateupdated DateTime @db.DateTime(0)
+}
+
+model groupmembers {
+  id      Int    @id @default(autoincrement())
+  groupid Int    @default(0)
+  pilotid Int    @default(0)
+  groups  groups @relation(fields: [groupid], references: [groupid])
+  pilots  Pilot  @relation("groupmembersTopilots", fields: [pilotid], references: [pilotid])
+
+  @@index([groupid], name: "groupmembers_ibfk_1")
+  @@index([pilotid], name: "groupmembers_ibfk_2")
+}
+
+model groups {
+  groupid      Int            @id @default(autoincrement())
+  name         String         @unique @default("") @db.VarChar(25)
+  permissions  String         @default("") @db.VarChar(25)
+  core         Int            @default(0) @db.TinyInt
+  groupmembers groupmembers[]
+}
+
+model ledger {
+  id           Int      @id @default(autoincrement())
+  pilotid      Int
+  pirepid      Int      @default(0)
+  paysource    Int      @db.TinyInt
+  paytype      Int      @default(3)
+  amount       Float    @default(0.00) @db.Float
+  submitdate   DateTime @db.DateTime(0)
+  modifieddate DateTime @db.DateTime(0)
+
+  @@index([pilotid], name: "pilot_id")
+  @@index([pirepid], name: "pirepid")
+}
+
+model navdata {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(7)
+  title       String  @db.VarChar(25)
+  airway      String? @db.VarChar(7)
+  airway_type String? @db.VarChar(1)
+  seq         Int
+  loc         String  @db.VarChar(4)
+  lat         Float   @db.Float
+  lng         Float   @db.Float
+  freq        String  @db.VarChar(7)
+  type        Int
+
+  @@index([airway], name: "airway")
+  @@index([name], name: "name")
+}
+
+model news {
+  id       Int      @id @default(autoincrement())
+  subject  String   @default("") @db.VarChar(30)
+  body     String   @db.Text
+  postdate DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  postedby String   @default("") @db.VarChar(50)
+}
+
+model pages {
+  pageid   Int      @id @default(autoincrement())
+  pagename String   @unique @default("") @db.VarChar(30)
+  filename String   @default("") @db.VarChar(30)
+  order    Int      @default(0) @db.SmallInt
+  postedby String   @default("") @db.VarChar(50)
+  postdate DateTime @default(dbgenerated("0000-00-00 00:00:00")) @db.DateTime(0)
+  public   Int      @default(0) @db.SmallInt
+  enabled  Int      @default(1) @db.SmallInt
+}
+
+model pirepcomments {
+  id       Int      @id @default(autoincrement())
+  pirepid  Int
+  pilotid  Int
+  comment  String   @db.Text
+  postdate DateTime @db.DateTime(0)
+  pireps   Pirep    @relation("pirepcommentsTopireps", fields: [pirepid], references: [pirepid])
+
+  @@index([pirepid], name: "pirepcomments_ibfk_1")
+}
+
+model pirepfields {
+  fieldid Int    @id @default(autoincrement())
+  title   String @db.VarChar(25)
+  name    String @unique @db.VarChar(25)
+  type    String @db.VarChar(25)
+  options String @db.Text
+}
+
+model pirepvalues {
+  id      Int    @id @default(autoincrement())
+  fieldid Int
+  pirepid Int
+  value   String @db.Text
+}
+
+model ranks {
+  rankid    Int     @id @default(autoincrement())
+  rank      String  @unique @default("") @db.VarChar(32)
+  rankimage String  @db.Text
+  minhours  Int     @default(0) @db.SmallInt
+  payrate   Float   @default(0) @db.Float
+  invite    Boolean @default(false)
+}
+
+model sessions {
+  id        Int      @id @default(autoincrement())
+  pilotid   Int
+  ipaddress String   @db.VarChar(25)
+  logintime DateTime @db.DateTime(0)
+}
+
+model settings {
+  id           Int    @id @default(autoincrement())
+  friendlyname String @default("") @db.VarChar(25)
+  name         String @unique @default("") @db.VarChar(25)
+  value        String @default("") @db.VarChar(150)
+  descrip      String @default("") @db.VarChar(150)
+  core         Int    @default(1) @db.SmallInt
+}
+
+model smartCARS_charteredflights {
+  routeid Int  @id
+  dbid    Int?
+  bidid   Int?
+}
+
+model smartCARS_sessions {
+  id        Int     @id @default(autoincrement())
+  dbid      Int?
+  sessionid String? @db.VarChar(64)
+  timestamp Int?
+}
+
+model top_flights {
+  id       Int @id @default(autoincrement()) @db.UnsignedMediumInt
+  pilot_id Int @db.UnsignedSmallInt
+  flights  Int @db.UnsignedMediumInt
+  hours    Int @db.UnsignedMediumInt
+  miles    Int @default(0) @db.UnsignedMediumInt
+  month    Int @db.UnsignedTinyInt
+  year     Int @db.UnsignedSmallInt
+}
+
+model updates {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(25)
+  lastupdate DateTime @db.DateTime(0)
+
+  @@index([name], name: "name")
+}

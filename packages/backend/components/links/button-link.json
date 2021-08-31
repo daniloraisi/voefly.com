@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_links_button_links",
+  "info": {
+    "name": "ButtonLink",
+    "icon": "fingerprint",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string"
+    },
+    "newTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "text": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["primary", "secondary"]
+    }
+  }
+}

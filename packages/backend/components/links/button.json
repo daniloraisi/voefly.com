@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_links_buttons",
+  "info": {
+    "name": "Button",
+    "icon": "fingerprint",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["primary", "secondary"]
+    }
+  }
+}
