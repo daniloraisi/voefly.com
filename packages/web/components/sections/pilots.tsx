@@ -127,14 +127,16 @@ const Pilots = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="relative flex-shrink-0 h-14 w-28">
-                            {pilot.rank?.rankimage && <Image
-                              loader={({ src }) => src}
-                              className="h-10 w-28 rounded-md"
-                              src={pilot.rank.rankimage}
-                              layout="fill"
-                              objectFit="cover"
-                              alt=""
-                            />}
+                            {pilot.rank?.rankimage &&
+                              <Image
+                                loader={({ src }) => src}
+                                className="h-10 w-28 rounded-md"
+                                src={pilot.rank.rankimage}
+                                layout="fill"
+                                objectFit="cover"
+                                alt=""
+                              />
+                            }
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
