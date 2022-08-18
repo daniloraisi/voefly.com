@@ -16,11 +16,11 @@ model Pilot {
   totalhours   Float  @default(0) @db.Float
   hub          String @default("") @db.VarChar(4)
   retired      Int    @default(0) @db.SmallInt
-  rankid       Int    @default(0)
+  rankid       Int?   @default(0)
 
   acarsData   AcarsData[]
   fieldValues FieldValue[]
-  rank        Rank         @relation(fields: [rankid], references: [rankid])
+  rank        Rank?        @relation(fields: [rankid], references: [rankid])
 
   @@map("pilots")
 }
