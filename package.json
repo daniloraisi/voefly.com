@@ -11,6 +11,6 @@
     "dev": "yarn dev:backend & yarn dev:web &"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   }
 }
