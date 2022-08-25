@@ -26,7 +26,7 @@ const Hero = ({ data }: Props) => {
                     layout="fill"
                   />
                 )}
-                <div className="absolute inset-0 bg-primary-700 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-primary-700/50 mix-blend-multiply" />
               </div>
               <div className="relative px-4 py-16 sm:px-6 sm:py-24 lg:py-32 lg:px-8">
                 <h1 className="text-center text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
