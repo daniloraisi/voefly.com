@@ -7,4 +7,5 @@ export interface Logos {
   id: string
   title?: string
   logo?: Media
+  linkTo?: string
 }

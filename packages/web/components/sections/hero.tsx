@@ -67,7 +67,9 @@ const Hero = ({ data }: Props) => {
                   className="col-span-2 md:col-span-2 flex justify-center"
                 >
                   {logo.logo && (
-                    <NextImage height={55} width={155} media={logo.logo} />
+                    <a href={logo.linkTo} target="_blank">
+                      <NextImage height={55} width={155} media={logo.logo} />
+                    </a>
                   )}
                 </div>
               ))}
