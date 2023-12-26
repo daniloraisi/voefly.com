@@ -1,0 +1,17 @@
+{
+  "name": "fly-site",
+  "image": "mcr.microsoft.com/devcontainers/base:alpine",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers-contrib/features/node-asdf:0": {
+      "version": "14.21.3"
+    },
+    "ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {},
+    "ghcr.io/devcontainers-contrib/features/neovim-homebrew:1": {
+      "shallowClone": true
+    }
+  }
+}
